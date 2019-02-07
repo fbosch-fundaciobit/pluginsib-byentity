@@ -291,7 +291,7 @@ public final class TicketSesionExterna {
     public void setIdps(final String pIdps) {
         idps = pIdps;
     }
-
+    
     /**
      * @return the representanteNif
      */

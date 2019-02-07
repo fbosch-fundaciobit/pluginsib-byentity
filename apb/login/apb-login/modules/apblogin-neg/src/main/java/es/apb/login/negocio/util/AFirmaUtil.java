@@ -14,7 +14,7 @@ import org.dom4j.Node;
 import org.dom4j.XPath;
 import org.dom4j.io.SAXReader;
 
-import es.apb.login.negocio.exception.ErrorRespuestaClaveException;
+
 
 /**
  * Utilidades AFirma.
@@ -32,9 +32,9 @@ public final class AFirmaUtil {
      * @return info del certificado (map con idcampo / valorcampo)
      */
     public static Map<String, String> extraerInfoCertificado(
-            final String xmlFirmaB64) {
+            final String xmlFirmaB64) throws DocumentException{
 
-        try {
+        
 
             final byte[] aFirmaBytes = Base64.decodeBase64(xmlFirmaB64);
 
@@ -64,11 +64,7 @@ public final class AFirmaUtil {
                 values.put(idCampo, valorCampo);
             }
 
-            return values;
-
-        } catch (final DocumentException ex) {
-            throw new ErrorRespuestaClaveException(ex);
-        }
+            return values;        
 
     }
 

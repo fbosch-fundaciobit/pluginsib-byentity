@@ -11,7 +11,9 @@ public enum ErrorCodes {
     /** Error general. */
     ERROR_GENERAL("errorGeneral"),
     /** Clave deshabilitado. */
-    CLAVE_DESHABILITADO("deshabilitado");
+    CLAVE_DESHABILITADO("deshabilitado"),
+    /** Error en la respuesta de Cl@ve. */
+    ERROR_RESPUESTA_CLAVE("errorRespuestaClave");
 
     /**
      * Valor como string.

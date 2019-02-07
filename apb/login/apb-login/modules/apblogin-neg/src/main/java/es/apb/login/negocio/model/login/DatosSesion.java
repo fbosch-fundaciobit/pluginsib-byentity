@@ -22,6 +22,9 @@ public final class DatosSesion {
     /** Idioma. */
     private String idioma;
 
+    /** Url origen. */
+    private String urlOrigen;
+    
     /**
      * Gets the idps.
      * 
@@ -97,5 +100,13 @@ public final class DatosSesion {
     public void setFechaTicket(final Date pFechaTicket) {
         fechaTicket = pFechaTicket;
     }
+
+	public String getUrlOrigen() {
+		return urlOrigen;
+	}
+
+	public void setUrlOrigen(String urlOrigen) {
+		this.urlOrigen = urlOrigen;
+	}
 
 }

@@ -49,7 +49,7 @@
 <build>
 
 		<!-- Nombre WAR -->
-		<finalName>apb-login</finalName>
+		<finalName>apb-login-front</finalName>
 
 		<plugins>
 			<!-- Opciones de compilacion -->

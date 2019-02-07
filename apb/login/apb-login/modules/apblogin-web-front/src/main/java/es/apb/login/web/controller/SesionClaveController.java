@@ -16,6 +16,7 @@ import org.springframework.web.servlet.ModelAndView;
 import es.apb.login.negocio.ClaveService;
 import es.apb.login.negocio.exception.ErrorFrontException;
 import es.apb.login.negocio.exception.ServiceException;
+import es.apb.login.negocio.exception.ErrorRespuestaClaveException;
 import es.apb.login.negocio.model.login.ErrorCodes;
 import es.apb.login.negocio.model.login.PeticionClave;
 import es.apb.login.negocio.model.login.SimularClave;
@@ -23,6 +24,7 @@ import es.apb.login.negocio.model.login.TicketClave;
 import es.apb.login.negocio.util.ConvertUtil;
 import es.apb.login.web.model.DatosInicioSesionClave;
 import es.apb.login.web.model.DatosRetornoClave;
+import es.apb.login.web.model.DetalleError;
 
 /**
  * Inicia sesion en clave.
@@ -32,6 +34,11 @@ import es.apb.login.web.model.DatosRetornoClave;
  */
 @Controller
 public final class SesionClaveController {
+	
+	 /** Mensaje error particularizado usuario. */	
+	  private static final String ERROR_MESSAGE_USER = "ERROR_MESSAGE_USER";
+	  
+	  private static final String ERROR_URL_ORIGEN = "ERROR_URL_ORIGEN";
 
     /** Servicio Clave. */
     @Resource(name = "claveService")
@@ -291,13 +298,30 @@ public final class SesionClaveController {
      * @return pagina error
      */
     @RequestMapping("/error.html")
-    public ModelAndView error(@RequestParam("code") final String errorCode) {
-        // Mostramos pagina generica de error
-        ErrorCodes error = ErrorCodes.fromString(errorCode);
-        if (error == null) {
-            error = ErrorCodes.ERROR_GENERAL;
+    public ModelAndView error(@RequestParam("code") final String errorCode,
+    		final HttpServletRequest request) {
+    	
+    	// En caso de existir error particular, mostramos mensaje particular
+        if (request.getSession().getAttribute(ERROR_MESSAGE_USER) != null) {
+        	 DetalleError de = new DetalleError();
+        	 de.setMensaje((String) request.getSession().getAttribute(ERROR_MESSAGE_USER));
+        	 de.setUrl((String) request.getSession().getAttribute(ERROR_URL_ORIGEN));
+        	 de.setCode(ErrorCodes.ERROR_RESPUESTA_CLAVE.toString());
+        	 
+        	 request.getSession().setAttribute(ERROR_MESSAGE_USER, null);
+        	 request.getSession().setAttribute(ERROR_URL_ORIGEN, null);
+        	 
+        	 return new ModelAndView("errorDetalle", "errorDetalle", de);
         }
-        return new ModelAndView("errorGeneral", "mensaje", error.toString());
+    	
+        // Si no mostramos pagina generica de error
+        ErrorCodes error = ErrorCodes.fromString(errorCode);        
+        if (error == null) {
+          error = ErrorCodes.ERROR_GENERAL;
+        }    
+        String errorMsg = error.toString();
+        return new ModelAndView("errorGeneral", "mensaje", errorMsg);
+        
     }
 
     /**
@@ -319,9 +343,22 @@ public final class SesionClaveController {
             log.error("Excepcion en capa front: " + pex.getMessage(), pex);
         }
 
+        String errorMsg = ErrorCodes.ERROR_GENERAL.toString();	
+        
+        // Si es una excepcion al procesar la respuesta de Clave, mostramos detalle al usuario
+        String errorMessage = null;
+        String urlOrigen = null;
+        if (pex instanceof ErrorRespuestaClaveException) {
+        	errorMessage = pex.getMessage();
+        	urlOrigen = ((ErrorRespuestaClaveException) pex).getUrlOrigen();
+        	errorMsg = ErrorCodes.ERROR_RESPUESTA_CLAVE.toString();
+        }
+        request.getSession().setAttribute(ERROR_MESSAGE_USER, errorMessage);
+        request.getSession().setAttribute(ERROR_URL_ORIGEN, urlOrigen);
+        
         // Mostramos pagina generica de error
         return new ModelAndView("redirect:/error.html?code="
-                + ErrorCodes.ERROR_GENERAL.toString());
+                + errorMsg);
     }
 
     // --- Metodos auxiliares

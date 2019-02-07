@@ -171,6 +171,9 @@ public final class ClaveServiceImpl implements ClaveService {
         log.debug(getAplicacion(sistra) + " Respuesta clave: "
                 + pSamlResponseB64);
 
+        
+        DatosSesion datosSesion = claveDao.obtenerDatosSesion(pIdSesion, sistra);
+        
         // Decodifica respuesta Clave
         STORKAuthnResponse authnResponse = null;
         // final IPersonalAttributeList personalAttributeList = null;
@@ -179,14 +182,14 @@ public final class ClaveServiceImpl implements ClaveService {
         try {
             authnResponse = engine.validateSTORKAuthnResponse(decSamlToken, "");
         } catch (final STORKSAMLEngineException e) {
-            throw new ErrorRespuestaClaveException(e);
+            throw new ErrorRespuestaClaveException(e, datosSesion.getUrlOrigen());
         }
 
         // Verificamos si hay error al interpretar la respuesta
         if (authnResponse.isFail()) {
             throw new ErrorRespuestaClaveException(
                     "La respuesta indica que hay un error : "
-                            + authnResponse.getMessage());
+                            + authnResponse.getMessage(), datosSesion.getUrlOrigen());
         }
 
         // Obtenemos atributos
@@ -228,7 +231,7 @@ public final class ClaveServiceImpl implements ClaveService {
         String nif = extraerNif(nifClave);
         if (nif == null) {
             throw new ErrorRespuestaClaveException(
-                    "La respuesta devuelve un nif no valido: " + nifClave);
+                    "La respuesta devuelve un nif no valido: " + nifClave, datosSesion.getUrlOrigen());
         }
 
         // Si es cif, no contempla apellidos
@@ -250,8 +253,13 @@ public final class ClaveServiceImpl implements ClaveService {
         // persona juridica
         DatosRepresentante representante = null;
         if (afirmaResponse != null) {
-            final Map<String, String> infoCertificado = AFirmaUtil
+            Map<String, String> infoCertificado = null;
+            try {
+            	infoCertificado = AFirmaUtil
                     .extraerInfoCertificado(afirmaResponse);
+            } catch (Exception ex) {
+            	throw new ErrorRespuestaClaveException(ex, datosSesion.getUrlOrigen());
+            }
             final String clasificacion = infoCertificado.get("clasificacion");
             if ("11".equals(clasificacion) || "12".equals(clasificacion)) {
                 // Datos representante

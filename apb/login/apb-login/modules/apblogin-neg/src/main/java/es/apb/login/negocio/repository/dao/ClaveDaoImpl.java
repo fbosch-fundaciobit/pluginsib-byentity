@@ -78,6 +78,7 @@ public final class ClaveDaoImpl implements ClaveDao {
             ds.setIdioma(ticket.getIdioma());
             ds.setIdps(ticket.getIdps());
             ds.setFechaTicket(ticket.getFechaTicket());
+            ds.setUrlOrigen(ticket.getUrlDestino());
         } else {
             final TicketSesionExterna ticket = entityManager.find(
                     TicketSesionExterna.class, Long.parseLong(idSesion));
@@ -88,6 +89,7 @@ public final class ClaveDaoImpl implements ClaveDao {
             ds.setIdioma(ticket.getIdioma());
             ds.setIdps(ticket.getIdps());
             ds.setFechaTicket(ticket.getFechaTicket());
+            ds.setUrlOrigen(null);
         }
         return ds;
     }

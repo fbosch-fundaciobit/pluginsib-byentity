@@ -11,15 +11,18 @@ package es.apb.login.negocio.exception;
 public final class ErrorRespuestaClaveException extends
 		ServiceRollbackException {
 
+	/** Url origen. */
+	private String urlOrigen;
+	
 	/**
 	 * Constructor GenerarPeticionClaveException.
 	 * 
 	 * @param cause
 	 *            Causa
 	 */
-	public ErrorRespuestaClaveException(final Throwable cause) {
-		super("Error al interpretar respuesta Clave: " + cause.getMessage(),
-				cause);
+	public ErrorRespuestaClaveException(final Throwable cause, final String urlRetorno) {
+		super(cause.getMessage(), cause);
+		this.urlOrigen = urlRetorno;
 	}
 
 	/**
@@ -28,8 +31,13 @@ public final class ErrorRespuestaClaveException extends
 	 * @param cause
 	 *            Causa
 	 */
-	public ErrorRespuestaClaveException(final String cause) {
-		super("Error al interpretar respuesta Clave: " + cause);
+	public ErrorRespuestaClaveException(final String cause, final String urlRetorno) {
+		super(cause);
+		this.urlOrigen = urlRetorno;
+	}
+
+	public String getUrlOrigen() {
+		return urlOrigen;
 	}
 
 }
